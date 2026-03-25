@@ -1,17 +1,23 @@
 import io
 import os
 import secrets
+from contextlib import asynccontextmanager
 from PIL import Image
 from rembg import remove, new_session
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Form
 from fastapi.responses import Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-app = FastAPI(title="Remove BG API", version="1.0.0")
+MODEL_NAME = os.getenv("REMBG_MODEL", "u2net")
+rembg_session = None
 
-# Load model once at startup (downloads ~200MB on first run, cached after)
-MODEL_NAME = os.getenv("REMBG_MODEL", "birefnet-general")
-session = new_session(MODEL_NAME)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global rembg_session
+    rembg_session = new_session(MODEL_NAME)
+    yield
+
+app = FastAPI(title="Remove BG API", version="1.0.0", lifespan=lifespan)
 
 BG_API_SECRET = os.getenv("BG_API_SECRET", "")
 security = HTTPBearer(auto_error=False)
@@ -41,7 +47,7 @@ async def remove_bg(
         raise HTTPException(status_code=413, detail="Image too large (max 20MB)")
 
     # Remove background → RGBA PNG
-    output_bytes = remove(data, session=session)
+    output_bytes = remove(data, session=rembg_session)
     img = Image.open(io.BytesIO(output_bytes)).convert("RGBA")
 
     # Composite onto solid background color

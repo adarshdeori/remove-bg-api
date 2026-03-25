@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: remove-bg-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free              # upgrade to 'starter' (~$7/mo) for always-on
+    healthCheckPath: /health
+    envVars:
+      - key: BG_API_SECRET
+        generateValue: true   # Render auto-generates a random secret; copy it to config.php
+      - key: REMBG_MODEL
+        value: birefnet-general

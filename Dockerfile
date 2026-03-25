@@ -15,6 +15,4 @@ COPY main.py .
 # Pre-download the model at build time so first request is fast
 RUN python -c "from rembg import new_session; new_session('u2net')"
 
-EXPOSE 8000
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]

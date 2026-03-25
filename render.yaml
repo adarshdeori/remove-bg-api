@@ -9,4 +9,4 @@ services:
       - key: BG_API_SECRET
         generateValue: true   # Render auto-generates a random secret; copy it to config.php
       - key: REMBG_MODEL
-        value: birefnet-general
+        value: u2net

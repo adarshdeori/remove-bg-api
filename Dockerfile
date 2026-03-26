@@ -13,6 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py .
 
 # Pre-download the model at build time so first request is fast
-RUN python -c "from rembg import new_session; new_session('u2net')"
+RUN python -c "from rembg import new_session; new_session('birefnet-general')"
 
 CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
